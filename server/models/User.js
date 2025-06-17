@@ -7,4 +7,9 @@ const userSchema = new mongoose.Schema({
   address: {type: String, default: ""},
   role: {type: String, enum: ["admin", "customer"], default: "customer"}, 
   createdAt: {type: Date, default: Date.now}, 
+  updatedAt: {type: Date, default: Date.now}
 })
+
+const User = mongoose.model("User", userSchema);
+
+export default User;
