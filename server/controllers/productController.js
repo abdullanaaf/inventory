@@ -82,14 +82,15 @@ const deleteProduct = async (req, res) => {
     if (existingProduct.isDeleted) {
       return res.status(400).json({ success: false, message: 'Product already deleted' });
     }
+
     // Soft delete the product by setting isDeleted to true
-    await Product.findByIdAndDelete(id, {isDeleted: true}, { new: true });
-    res.status(200).json({ success: true, message: 'Product deleted successfully' });
-  }
-  catch (error) {
+    await Product.findByIdAndUpdate(id, { isDeleted: true }, { new: true });
+
+    res.status(200).json({ success: true, message: 'Product deleted successfully (soft delete)' });
+  } catch (error) {
     console.error('Error deleting Product:', error);
     res.status(500).json({ success: false, message: 'Server error in deleting Product' });
   }
-}
+};
 
 export {getProducts, addProduct, updateProduct, deleteProduct};

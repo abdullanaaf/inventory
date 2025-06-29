@@ -126,7 +126,7 @@ const Product = () => {
         <input
           type='text'
           placeholder='Search...'
-          className='border p-1 bg-white px-4 rounded'
+          className='border p-1 bg-white px-4 rounded w-3/4'
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
