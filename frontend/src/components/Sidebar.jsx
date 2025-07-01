@@ -1,5 +1,5 @@
 import React from 'react'
-import { FaHome, FaTable, FaBox, FaTruck, FaShoppingCart, FaUsers, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaTable, FaBox, FaTruck, FaShoppingCart, FaUsers, FaCog, FaSignOutAlt, FaFileUpload } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
 
 const Sidebar = () => {
@@ -11,6 +11,7 @@ const Sidebar = () => {
     {name: 'Orders', path: '/admin-dashboard/orders', icon: <FaShoppingCart />, isParent: false },
     {name: 'Users', path: '/admin-dashboard/users', icon: <FaUsers />, isParent: false},
     {name: 'Profile', path: '/admin-dashboard/profile', icon: <FaCog />, isParent: false },
+    {name: 'Excel Upload', path: '/admin-dashboard/upload', icon: <FaFileUpload />, isParent: false },
     {name: 'Logout', path: '/admin-dashboard/logout', icon: <FaSignOutAlt />, isParent: false }
   ]
   return (

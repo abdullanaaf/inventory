@@ -6,8 +6,7 @@ const ProtectedRoutes = ({ children, requireRole }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  console.log(user);
-  useEffect(() => {
+ useEffect(() => {
     if (!user) {
       navigate('/login');
     } else if (requireRole && user.role !== requireRole) {
