@@ -9,6 +9,10 @@ import Suppliers from './components/Suppliers.jsx';
 import Product from './components/Product.jsx';
 import Logout from './components/Logout.jsx';
 import ExcelUpload from './components/ExcelUpload.jsx';
+import Users from './components/Users.jsx';
+import CustomerProducts from './components/CustomerProducts.jsx';
+import Orders from './components/Order.jsx';
+import Profile from './components/Profile.jsx';
 
 function App() {
   return (
@@ -29,13 +33,18 @@ function App() {
           <Route path="products" element={<Product />} />
           <Route path="suppliers" element={<Suppliers />} />
           <Route path="orders" element={<h1>Orders</h1>} />
-          <Route path="users" element={<h1>Users</h1>} />
+          <Route path="users" element={< Users />} />
           <Route path="profile" element={<h1>Profile</h1>} />
           <Route path="upload" element={<ExcelUpload />} />
           <Route path="logout" element={<Logout />} />
         </Route>
 
-        <Route path="/customer/dashboard" element={<h1>Customer Dashboard</h1>} />
+        <Route path="/customer-dashboard" element={<Dashboard />}>
+        <Route index element={<CustomerProducts />} />
+          <Route path="orders" element={<Orders />} />
+          <Route path="profile" element={<Profile/>} />
+          <Route path="logout" element={<Logout />} />
+         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/unauthorized" element={<p className='text-3xl font-bold mt-20 ml-20'>Unauthorized</p>} />
 

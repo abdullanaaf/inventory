@@ -9,8 +9,11 @@ const Users = () => {
     address: '',
     role: '',
   });
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchUsers = async () => {
     try {
@@ -19,6 +22,7 @@ const Users = () => {
           Authorization: `Bearer ${localStorage.getItem('pos-token')}`,
         },
       });
+
       if (response.data.success) {
         setUsers(response.data.users);
       } else {
@@ -37,6 +41,7 @@ const Users = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const response = await axios.post(
         'http://localhost:3000/api/users/add',
@@ -44,6 +49,7 @@ const Users = () => {
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('pos-token')}`,
+            'Content-Type': 'application/json',
           },
         }
       );
@@ -56,18 +62,21 @@ const Users = () => {
           address: '',
           role: '',
         });
-        alert('User Added Successfully');
+        alert('User added successfully');
         fetchUsers(); // Refresh the list
       } else {
-        alert('Error Adding User, Please Contact Administrator');
+        alert(response.data.message || 'Error adding user');
       }
     } catch (error) {
-      alert('Error Adding User, Please Contact Administrator');
+      const message = error.response?.data?.message || 'Server error. Please contact administrator.';
+      alert(message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
-    const confirmDelete = window.confirm("Are you sure you want to delete this User?");
+    const confirmDelete = window.confirm('Are you sure you want to delete this User?');
     if (confirmDelete) {
       try {
         const response = await axios.delete(`http://localhost:3000/api/users/${id}`, {
@@ -75,14 +84,16 @@ const Users = () => {
             Authorization: `Bearer ${localStorage.getItem('pos-token')}`,
           },
         });
+
         if (response.data.success) {
-          alert('User Deleted Successfully');
-          fetchUsers(); // Refresh the list
+          alert('User deleted successfully');
+          fetchUsers();
         } else {
-          alert('Error Deleting User, Please Contact Administrator');
+          alert(response.data.message || 'Error deleting user');
         }
       } catch (error) {
-        alert('Error Deleting User, Please Contact Administrator');
+        const message = error.response?.data?.message || 'Error deleting user';
+        alert(message);
       }
     }
   };
@@ -95,6 +106,11 @@ const Users = () => {
     });
   };
 
+  const filteredUsers = users.filter((user) =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   if (loading) {
     return <div className='flex justify-center items-center h-screen'>Loading...</div>;
   }
@@ -103,12 +119,13 @@ const Users = () => {
     <div className='p-4'>
       <h1 className='text-2xl font-bold mb-8'>User Management</h1>
       <div className='flex flex-col lg:flex-row gap-4'>
+        {/* Form */}
         <div className='lg:w-1/3'>
           <div className='bg-white p-4 rounded-lg shadow-md'>
             <h2 className='text-center text-xl font-bold mb-4'>Add User</h2>
             <form className='space-y-4' onSubmit={handleSubmit}>
               <input
-                type="text"
+                type='text'
                 placeholder='Enter Name'
                 name='name'
                 className='border w-full p-2 rounded-md'
@@ -117,7 +134,7 @@ const Users = () => {
                 required
               />
               <input
-                type="email"
+                type='email'
                 placeholder='Enter Email'
                 className='border w-full p-2 rounded-md'
                 name='email'
@@ -126,7 +143,7 @@ const Users = () => {
                 required
               />
               <input
-                type="password"
+                type='password'
                 placeholder='**********'
                 className='border w-full p-2 rounded-md'
                 name='password'
@@ -135,7 +152,7 @@ const Users = () => {
                 required
               />
               <input
-                type="text"
+                type='text'
                 placeholder='Enter Address'
                 className='border w-full p-2 rounded-md'
                 name='address'
@@ -155,16 +172,27 @@ const Users = () => {
                 <option value='customer'>Customer</option>
               </select>
               <button
-                type="submit"
-                className='w-full rounded-md bg-green-500 text-white p-3 cursor-pointer hover:bg-green-700'
+                type='submit'
+                disabled={isSubmitting}
+                className={`w-full rounded-md p-3 text-white ${
+                  isSubmitting ? 'bg-gray-400' : 'bg-green-500 hover:bg-green-700'
+                }`}
               >
-                Add User
+                {isSubmitting ? 'Submitting...' : 'Add User'}
               </button>
             </form>
           </div>
         </div>
 
+        {/* Users Table */}
         <div className='lg:w-2/3'>
+          <input
+            type='text'
+            placeholder='Search'
+            className='w-full bg-white p-2 mb-4 rounded'
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
           <div className='bg-white p-4 rounded-lg shadow-md'>
             <table className='w-full border-collapse border border-gray-200'>
               <thead>
@@ -178,23 +206,31 @@ const Users = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.map((user, index) => (
-                  <tr key={user._id}>
-                    <td className='border p-2'>{index + 1}</td>
-                    <td className='border p-2'>{user.name}</td>
-                    <td className='border p-2'>{user.email}</td>
-                    <td className='border p-2'>{user.address}</td>
-                    <td className='border p-2 capitalize'>{user.role}</td>
-                    <td className='border p-2'>
-                      <button
-                        className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700'
-                        onClick={() => handleDelete(user._id)}
-                      >
-                        Delete
-                      </button>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan='6' className='text-center py-4 text-gray-500'>
+                      No users found.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredUsers.map((user, index) => (
+                    <tr key={user._id}>
+                      <td className='border p-2'>{index + 1}</td>
+                      <td className='border p-2'>{user.name}</td>
+                      <td className='border p-2'>{user.email}</td>
+                      <td className='border p-2'>{user.address}</td>
+                      <td className='border p-2 capitalize'>{user.role}</td>
+                      <td className='border p-2'>
+                        <button
+                          className='bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-700'
+                          onClick={() => handleDelete(user._id)}
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

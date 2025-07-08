@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { FaHome, FaTable, FaBox, FaTruck, FaShoppingCart, FaUsers, FaCog, FaSignOutAlt, FaFileUpload } from 'react-icons/fa';
 import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 const Sidebar = () => {
   const menuItems = [
@@ -13,7 +14,26 @@ const Sidebar = () => {
     {name: 'Profile', path: '/admin-dashboard/profile', icon: <FaCog />, isParent: false },
     {name: 'Excel Upload', path: '/admin-dashboard/upload', icon: <FaFileUpload />, isParent: false },
     {name: 'Logout', path: '/admin-dashboard/logout', icon: <FaSignOutAlt />, isParent: false }
-  ]
+  ];
+
+  const customerItems = [
+    //{name: 'Dashboard', path: '/customer-dashboard', icon: <FaHome />, isParent: true },
+    {name: 'Products', path: '/customer-dashboard/', icon: <FaBox />, isParent: true },
+    {name: 'Orders', path: '/customer-dashboard/orders', icon: <FaShoppingCart />, isParent: false },
+    {name: 'Profile', path: '/customer-dashboard/profile', icon: <FaCog />, isParent: false },
+    {name: 'Logout', path: '/customer-dashboard/logout', icon: <FaSignOutAlt />, isParent: false }
+  ];
+  
+  const { user } = useAuth();
+
+  const [menuLinks, setMenuLinks] = useState(customerItems);
+
+  useEffect(() => {
+    if (user && user.role === 'admin') {
+      setMenuLinks(menuItems);
+    } 
+  }, [])
+
   return (
     <div className='flex flex-col  h-screen bg-black text-white  w-16 md:w-64 fixed'>
       <div className='h-16 flex flex-items justify-center'>
@@ -22,7 +42,7 @@ const Sidebar = () => {
       </div>
       <div>
         <ul className='space-y-2 p-2'>
-          {menuItems.map((item) => (
+          {menuLinks.map((item) => (
             <li key={item.name}>
                <NavLink
                end={item.isParent}

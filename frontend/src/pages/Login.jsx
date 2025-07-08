@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-const Login = () => {     
+const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -20,72 +20,84 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:3000/api/auth/login', {
         email: email.trim(),
-        password: password
+        password
       });
-      console.log(response.data);
+
       if (response.data.success) {
         await login(response.data.user, response.data.token);
-        if (response.data.user.role === 'admin') {
-          navigate('/admin-dashboard');
-        } else  {
-          navigate('/customer-dashboard');
-        }
+
+        // navigate in a setTimeout to avoid react-router warning (optional workaround)
+        setTimeout(() => {
+          if (response.data.user.role === 'admin') {
+            navigate('/admin-dashboard');
+          } else {
+            navigate('/customer-dashboard');
+          }
+        }, 0);
+
       } else {
-        setError(response.data.error);
+        setError(response.data.error || 'Invalid credentials');
       }
     } catch (error) {
       setError(error.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-b from-green-700 from-50% to-gray-100 to-50% space-y-6">
       <h2 className='text-3xl text-white'>Inventory Management System</h2>
+
       <div className='border shadow-lg p-6 w-80 bg-white rounded-lg'>
         <h2 className='text-2xl font-bold mb-4'>Login</h2>
+
         {error && (
           <div className='bg-red-200 text-red-700 p-2 mb-4 rounded'>
             {error}
           </div>
         )}
+
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
             <label className='block text-gray-700'>Email:</label>
-            <input 
-              type="text" 
-              className='w-full px-3 py-2 border' 
-              placeholder='Enter email' 
-              name="email" 
-              required 
+            <input
+              type="email"
+              className='w-full px-3 py-2 border rounded'
+              placeholder='Enter email'
+              name="email"
+              value={email}
+              required
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
+
           <div className="mb-4">
             <label className='block text-gray-700'>Password:</label>
-            <input 
-              type="password" 
-              className='w-full px-3 py-2 border' 
-              placeholder='********' 
-              name="password" 
-              required 
+            <input
+              type="password"
+              className='w-full px-3 py-2 border rounded'
+              placeholder='********'
+              name="password"
+              value={password}
+              required
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+
           <div className='mb-4'>
-            <button 
-              type="submit" 
-              className='w-full bg-green-600 py-2 text-white'
+            <button
+              type="submit"
+              className='w-full bg-green-600 py-2 text-white rounded hover:bg-green-700 disabled:opacity-50'
               disabled={loading}
             >
-              {loading ? 'Loading...' : 'Login'}
+              {loading ? 'Logging in...' : 'Login'}
             </button>
           </div>
         </form>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default Login;
